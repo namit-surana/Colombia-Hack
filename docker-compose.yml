@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  hackathon-judge:
+    build: .
+    container_name: hackathon-judge-api
+    ports:
+      - "8000:8000"
+    environment:
+      # Load from .env file
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - LLM_PROVIDER=${LLM_PROVIDER:-openai}
+      - LLM_MODEL=${LLM_MODEL:-gpt-4-turbo}
+      - ELEVENLABS_VOICE_ID=${ELEVENLABS_VOICE_ID:-professional_neutral}
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DEBUG=${DEBUG:-False}
+    volumes:
+      # Mount results directory for persistence
+      - ./results:/app/results
+      - ./temp:/app/temp
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# Optional: Add nginx reverse proxy for production
+#  nginx:
+#    image: nginx:alpine
+#    container_name: hackathon-judge-nginx
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    volumes:
+#      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+#    depends_on:
+#      - hackathon-judge
+#    restart: unless-stopped
+
+volumes:
+  results:
+  temp:

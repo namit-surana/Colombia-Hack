@@ -1,0 +1,17 @@
+from .settings import settings
+from .prompts import (
+    GITHUB_AGENT_PROMPT,
+    PPT_AGENT_PROMPT,
+    VOICE_AGENT_PROMPT,
+    ORCHESTRATOR_AGENT_PROMPT,
+    VOICE_SCRIPT_TEMPLATE
+)
+
+__all__ = [
+    'settings',
+    'GITHUB_AGENT_PROMPT',
+    'PPT_AGENT_PROMPT',
+    'VOICE_AGENT_PROMPT',
+    'ORCHESTRATOR_AGENT_PROMPT',
+    'VOICE_SCRIPT_TEMPLATE'
+]
