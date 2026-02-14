@@ -254,33 +254,52 @@ async def analyze_voice(request: VoiceAnalyzeRequest):
 @app.websocket("/ws/voice/{team_id}")
 async def voice_websocket(websocket: WebSocket, team_id: str):
     """
-    WebSocket endpoint for real-time voice conversation
+    WebSocket endpoint for real-time voice transcription.
 
-    Note: This is a placeholder. Full implementation requires ElevenLabs WebSocket integration.
+    Client streams raw PCM audio (16kHz, 16-bit, mono) as binary frames.
+    Server returns partial and committed transcripts as JSON.
+    Send {"type": "stop"} as a text frame to end the session.
     """
     await websocket.accept()
 
     try:
         await websocket.send_json({
             "type": "connected",
-            "message": "Connected to voice session",
-            "team_id": team_id
+            "team_id": team_id,
+            "audio_format": "pcm_16000",
+            "message": (
+                "Connected. Stream PCM audio as binary frames. "
+                "Send {\"type\": \"stop\"} to finish."
+            ),
         })
 
-        # Placeholder for bidirectional audio streaming
-        while True:
-            data = await websocket.receive_text()
+        result = await voice_agent.run_realtime_session(
+            team_id, websocket
+        )
 
-            # Echo back (replace with actual ElevenAgents integration)
-            await websocket.send_json({
-                "type": "echo",
-                "message": f"Received: {data}"
-            })
+        # Send analysis back before closing
+        await websocket.send_json({
+            "type": "analysis_complete",
+            "data": {
+                "team_id": team_id,
+                "saved_to": f"results/{team_id}/voice.json",
+                "delivery_score": result.get("delivery_score"),
+                "word_count": result.get("word_count"),
+                "error": result.get("error"),
+            },
+        })
 
     except WebSocketDisconnect:
         print(f"[WebSocket] Client disconnected: {team_id}")
-        # Save conversation analysis here
-        await websocket.close()
+    except Exception as e:
+        print(f"[WebSocket] Error for {team_id}: {e}")
+        try:
+            await websocket.send_json({
+                "type": "error",
+                "message": str(e),
+            })
+        except Exception:
+            pass
 
 
 # ============================================================================

@@ -24,6 +24,7 @@ class Settings:
     # ElevenLabs Configuration
     ELEVENLABS_VOICE_ID = os.getenv("ELEVENLABS_VOICE_ID", "professional_neutral")
     ELEVENLABS_MODEL = os.getenv("ELEVENLABS_MODEL", "eleven_multilingual_v2")
+    ELEVENLABS_STT_MODEL = os.getenv("ELEVENLABS_STT_MODEL", "scribe_v2_realtime")
 
     # Server Configuration
     HOST = os.getenv("HOST", "0.0.0.0")

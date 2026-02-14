@@ -15,7 +15,7 @@ openai==1.12.0
 anthropic==0.18.0
 
 # ElevenLabs
-elevenlabs==1.0.0
+elevenlabs>=1.0.0
 
 # GitHub Analysis
 PyGithub==2.2.0
